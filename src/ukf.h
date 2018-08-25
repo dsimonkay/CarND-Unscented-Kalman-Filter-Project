@@ -5,10 +5,11 @@
 #include "Eigen/Dense"
 #include <vector>
 #include <string>
-#include <fstream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using namespace std;
+
 
 class UKF {
 public:
@@ -68,6 +69,19 @@ public:
   double lambda_;
 
 
+  // custom extensions to make my life easier
+
+  ///* Number of sigma points
+  int n_sigma_;
+
+  ///* Debug mode
+  bool debug_mode_;
+
+  ///* NIS files name prefix and suffix
+  const string nis_filename_prefix_ = "../data/";
+  const string nis_filename_suffix_ = "_P0.8";
+
+
   /**
    * Constructor
    */
@@ -86,7 +100,7 @@ public:
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
-   * matrix
+   * matrix. This is a wrapper function.
    * @param delta_t Time between k and k+1 in s
    */
   void Prediction(double delta_t);
@@ -102,6 +116,78 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+
+
+private:
+  /**
+   * Initializing the Kalman Filter properly.
+   * @param meas_package The latest measurement data of either radar or laser
+   */
+  void Init(MeasurementPackage meas_package);
+
+  /**
+   * First operation in the prediction step:
+   *  - creating augmented mean state
+   *  - creating augmented covariance matrix
+   *  - creating augmented sigma points
+   */
+  void GenerateSigmaPoints(MatrixXd &Xsig_aug);
+
+  /**
+   * Second operation in the prediction step:
+   *  - predicting sigma points
+   */
+  void PredictSigmaPoints(double delta_t, const MatrixXd &Xsig_aug);
+
+  /**
+   * Third operation in the prediction step:
+   *  - predicting state mean
+   *  - predicting covariance matrix
+   */
+  void PredictMeanAndCovariance();
+
+  /**
+   * First operation in the measurement update step for a radar measurement:
+   *  - transforming sigma points into measurement space
+   *  - calculating mean predicted measurement
+   *  - calculate innovation covariance matrix S
+   */
+  void PredictRadarMeasurement(VectorXd &z_pred, MatrixXd &Zsig, MatrixXd &S);
+
+  /**
+   * First operation in the measurement update step for a laser measurement:
+   *  - transforming sigma points into measurement space
+   *  - calculating mean predicted measurement
+   *  - calculate innovation covariance matrix S
+   */
+  void PredictLidarMeasurement(VectorXd &z_pred, MatrixXd &Zsig, MatrixXd &S);
+
+  /**
+   * Second operation in the measurement update step for a radar or lidar measurement:
+   *  - calculating cross correlation matrix
+   *  - calculating Kalman gain K;
+   *  - updating state mean and covariance matrix
+   */
+  void UpdateState(const MeasurementPackage &measurement, const VectorXd &z_pred, const MatrixXd &Zsig, const MatrixXd &S);
+
+  /**
+   * Normalizes the given angle between [-PI, +PI].
+   * @param angle The angle to normalize
+   */
+  void NormalizeAngle(double &angle);
+
+  /**
+   * A helper method to calculate NIS (and eventually dumpt it into a corresponding file as well).
+   */
+  void CalculateNIS(const MeasurementPackage &measurement, const VectorXd &z_pred, const MatrixXd &S);
+
+  /**
+   * A helper method to display a log/debug message.
+   */
+  void Log(string message, bool print_newline = true);
+
 };
+
 
 #endif /* UKF_H */
