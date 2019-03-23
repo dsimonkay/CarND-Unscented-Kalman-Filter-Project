@@ -4,11 +4,10 @@
 #include <fstream>
 #include <sstream>
 #include <cstdio>
+#include <string>
 
-using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using std::vector;
 
 /**
  * Initializes Unscented Kalman filter
@@ -579,19 +578,19 @@ void UKF::CalculateNIS(const MeasurementPackage &measurement, const VectorXd &z_
   // putting the result into a corresponding file + logging
   if ( debug_mode_ ) {
 
-    const string sensor_type = ( measurement.sensor_type_ == MeasurementPackage::RADAR ? "Radar" : "Lidar" );
+    const std::string sensor_type = ( measurement.sensor_type_ == MeasurementPackage::RADAR ? "Radar" : "Lidar" );
 
     // helper variables for string manipulation
     char buffer[10];
-    stringstream content;
-    stringstream filename;
+    std::stringstream content;
+    std::stringstream filename;
 
     // assembling filename. It will look something like this: "../data/Lidar_NIS_values_2.1_0.4.txt"
     filename << nis_filename_prefix_ << sensor_type << "_NIS_values_";
     sprintf(buffer, "%.1f", std_a_);
-    filename << string(buffer) << "_";
+    filename << std::string(buffer) << "_";
     sprintf(buffer, "%.2f", std_yawdd_);
-    filename << string(buffer) << nis_filename_suffix_ << ".txt";
+    filename << std::string(buffer) << nis_filename_suffix_ << ".txt";
 
     // preparing content
     content << e;
@@ -603,7 +602,7 @@ void UKF::CalculateNIS(const MeasurementPackage &measurement, const VectorXd &z_
     nis_dump.close();
 
     // displaying info in the console
-    stringstream message;
+    std::stringstream message;
     message << sensor_type << " NIS: " << e;
     Log(message.str());
   }
@@ -614,15 +613,15 @@ void UKF::CalculateNIS(const MeasurementPackage &measurement, const VectorXd &z_
 /**
  * A helper method to display a log/debug message.
  */
-void UKF::Log(string message, bool print_newline) {
+void UKF::Log(std::string message, bool print_newline) {
 
   if ( debug_mode_ ) {
 
     // hello, Kitty
-    cout << message;
+    std::cout << message;
 
     if ( print_newline ) {
-      cout << endl;
+      std::cout << endl;
     }
   }
 }

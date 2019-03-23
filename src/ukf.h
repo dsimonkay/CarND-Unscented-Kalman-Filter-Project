@@ -3,12 +3,11 @@
 
 #include "measurement_package.h"
 #include "Eigen/Dense"
-#include <vector>
 #include <string>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using namespace std;
+
 
 
 class UKF {
@@ -78,8 +77,8 @@ public:
   bool debug_mode_;
 
   ///* NIS files name prefix and suffix
-  const string nis_filename_prefix_ = "../data/";
-  const string nis_filename_suffix_ = "_P0.8";
+  const std::string nis_filename_prefix_ = "../data/";
+  const std::string nis_filename_suffix_ = "_P0.8";
 
 
   /**
@@ -185,7 +184,7 @@ private:
   /**
    * A helper method to display a log/debug message.
    */
-  void Log(string message, bool print_newline = true);
+  void Log(std::string message, bool print_newline = true);
 
 };
 
